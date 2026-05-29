@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuli Diapers - Secret Lucky Spin</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --tuli-green: #006B3C;
+            --tuli-white: #ffffff;
+            --gold: #FFD700;
+            --bg-dark: #0b1e14;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Arial Black', 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* ਫੈਸਟੀਵਲ ਥੀਮ ਗਲੋਇੰਗ ਹੈਡਰ */
+        .header-box {
+            background-color: var(--tuli-green);
+            color: var(--tuli-white);
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px var(--gold);
+            margin-bottom: 25px;
+            border: 4px solid var(--gold);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 15px var(--tuli-green); border-color: var(--tuli-white); }
+            100% { box-shadow: 0 0 25px var(--gold); border-color: var(--gold); }
+        }
+
+        .header-box h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-box p {
+            margin: 5px 0 0 0;
+            font-size: 1.1rem;
+            color: var(--gold);
+            letter-spacing: 3px;
+        }
+
+        /* ਕਸਟਮਰ ਫਾਰਮ */
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--tuli-green);
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: inline-block;
+            box-sizing: border-box;
+        }
+
+        .form-container h2 {
+            margin-top: 0;
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            background: #222;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* ਵ੍ਹੀਲ ਕੰਟੇਨਰ */
+        .wheel-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wheel-box {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin-top: 10px;
+        }
+
+        #wheel-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 12px solid var(--gold);
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.5);
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+
+        /* ਡਿਸਕੋ ਲਾਈਟਸ ਐਨੀਮੇਸ਼ਨ */
+        @keyframes partyLights {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .arrow-pointer {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-top: 38px solid var(--gold);
+            z-index: 20;
+        }
+
+        .btn-style {
+            background: var(--tuli-green);
+            color: var(--tuli-white);
+            border: 3px solid var(--gold);
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #spin-btn {
+            width: auto;
+            margin-top: 25px;
+            padding: 15px 60px;
+        }
+
+        /* PRIZE REVEAL POPUP */
+        #reveal-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            border: 5px solid var(--gold);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            z-index: 100;
+            color: #333;
+            text-align: center;
+            width: 80%;
+            max-width: 320px;
+        }
+
+        #reveal-container.show {
+            display: block;
+        }
+
+        #reveal-msg h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.6rem;
+        }
+
+        #reveal-msg h3 {
+            margin: 0;
+            font-size: 2rem;
+            color: var(--tuli-green);
+        }
+        
+        .wa-btn {
+            background: #25D366;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="ipl-sound" src="data:audio/wav;base64,UklGRmZgAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YVlgAACAgoSGiImKjJAAsLO0uLm6u7y9AECws7S4ubq7vL0AQLO0uLm6u7yAQLCzs7S4ubq7vABAALCzs7S4ubq8vQAAsLO0uLm6u7y9AECws7S4ubq7vL0AQLO0uLm6u7yAQLCzs7S4ubq7vABA" preload="auto"></audio>
+    <audio id="real-win" src="data:audio/wav;base64,UklGRigEAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQQEAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" preload="auto"></audio>
+
+    <div class="header-box">
+        <h1>TULI DIAPERS</h1>
+        <p>SECRET LUCKY SPIN</p>
+    </div>
+
+    <div class="form-container" id="form-container">
+        <h2>ਆਪਣੀ ਡਿਟੇਲ ਭਰੋ</h2>
+        <form id="customer-form">
+            <div class="input-group">
+                <label>ਪੂਰਾ ਨਾਮ (Full Name)</label>
+                <input type="text" id="cust-name" required placeholder="ਅਮਿਤ ਕੁਮਾਰ">
+            </div>
+            <div class="input-group">
+                <label>ਮੋਬਾਈਲ ਨੰਬਰ (Contact No)</label>
+                <input type="tel" id="cust-phone" pattern="[0-9]{10}" required placeholder="9876543210">
+            </div>
+            <div class="input-group">
+                <label>ਈਮੇਲ ਆਈਡੀ (Valid Email)</label>
+                <input type="email" id="cust-email" required placeholder="example@email.com">
+            </div>
+            <button type="submit" class="btn-style">SUBMIT & SPIN</button>
+        </form>
+    </div>
+
+    <div class="wheel-container" id="wheel-container">
+        <div class="wheel-box">
+            <div class="arrow-pointer"></div>
+            <canvas id="wheel-canvas" width="400" height="400"></canvas>
+        </div>
+        <button class="btn-style" id="spin-btn">SPIN NOW</button>
+    </div>
+
+    <div id="reveal-container">
+        <div id="reveal-msg"></div>
+    </div>
+
+    <script>
+        const formContainer = document.getElementById('form-container');
+        const wheelContainer = document.getElementById('wheel-container');
+        const custForm = document.getElementById('customer-form');
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spin-btn');
+        const revealContainer = document.getElementById('reveal-container');
+        const revealMsg = document.getElementById('reveal-msg');
+
+        // ਆਡੀਓ ਇਲੀਮੈਂਟਸ ਲੋਡ ਕਰਨਾ
+        const iplSound = document.getElementById('ipl-sound');
+        const realWin = document.getElementById('real-win');
+
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // ਮਕੈਨੀਕਲ ਟਿਕ-ਟਿਕ ਸਾਊਂਡ (ਵ੍ਹੀਲ ਦੇ ਘੁੰਮਣ ਲਈ)
+        function playTickSound() {
+            try {
+                initAudio();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(140, audioCtx.currentTime); 
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.04);
+            } catch(e) {}
+        }
+
+        // 🌟 ਅਸਲੀ ਮਿਊਜ਼ੀਕਲ IPL ਟਰੰਪੈਟ ਹੌਰਨ (Synthesized for W3Schools Sandbox)
+        function playRealTrumpet() {
+            try {
+                initAudio();
+                // IPL ਟਰੰਪੈਟ ਟਿਊਨ ਬੀਟਸ: 587Hz(Tut), 587Hz(Tu), 698Hz(Tu), 587Hz(Tut), 783Hz(Tut), 880Hz(Tuuuu)
+                let notes = [587.33, 587.33, 698.46, 587.33, 783.99, 880.00];
+                let durations = [0.12, 0.12, 0.18, 0.12, 0.18, 0.5];
+                let delays = [0, 0.15, 0.30, 0.50, 0.65, 0.85];
+
+                notes.forEach((freq, i) => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    
+                    osc.type = 'sawtooth'; // ਟਰੰਪੈਟ ਵਰਗੀ ਤੇਜ਼ ਬ੍ਰਾਸ ਲੁੱਕ ਸਾਊਂਡ
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delays[i]);
+                    
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + delays[i]);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + delays[i] + durations[i]);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(audioCtx.currentTime + delays[i]);
+                    osc.stop(audioCtx.currentTime + delays[i] + durations[i]);
+                });
+            } catch(e) {}
+        }
+
+        // ਜਿੱਤਣ 'ਤੇ ਸ਼ਾਨਦਾਰ ਚਾਈਮਸ ਮਿਊਜ਼ਿਕ
+        function playRealWinMusic() {
+            try {
+                initAudio();
+                let winNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+                winNotes.forEach((freq, index) => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.07);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + index * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + index * 0.07 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + index * 0.07);
+                    osc.stop(audioCtx.currentTime + index * 0.07 + 0.3);
+                });
+            } catch(e) {}
+        }
+
+        // ਹਾਰਨ 'ਤੇ ਉਦਾਸ ਟਿਊਨ
+        function playRealSadMusic() {
+            try {
+                initAudio();
+                let sadNotes = [392.00, 311.13, 246.94, 196.00];
+                sadNotes.forEach((freq, index) => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.14);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + index * 0.14);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + index * 0.14 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + index * 0.14);
+                    osc.stop(audioCtx.currentTime + index * 0.14 + 0.4);
+                });
+            } catch(e) {}
+        }
+
+        const prizes = [
+            "250 CASH BACK", "TRY NEXT TIME", "150 CASH BACK", 
+            "TRY NEXT TIME", "NOTE BOOK BUNDLE 5 PCS", "TRY NEXT TIME", 
+            "50 RS", "GEOMETRY BOX", "TRY NEXT TIME"
+        ];
+        
+        const colors = ["#006B3C", "#ffffff", "#006B3C", "#ffffff", "#006B3C", "#ffffff", "#006B3C", "#ffffff", "#006B3C"];
+        const numSlices = prizes.length;
+        const sliceAngle = (2 * Math.PI) / numSlices;
+
+        let customerData = {};
+
+        custForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            initAudio(); 
+            
+            // 🎺 ਫਾਰਮ ਸਬਮਿਟ ਹੁੰਦੇ ਹੀ ਅਸਲੀ IPL ਟਰੰਪੈਟ ਟਿਊਨ ਵੱਜੇਗੀ!
+            playRealTrumpet();
+            
+            customerData = {
+                name: document.getElementById('cust-name').value,
+                phone: document.getElementById('cust-phone').value,
+                email: document.getElementById('cust-email').value
+            };
+
+            // ਟਰੰਪੈਟ ਟਿਊਨ ਖਤਮ ਹੋਣ ਤੱਕ (1.2 ਸੈਕਿੰਡ) ਵ੍ਹੀਲ ਨੂੰ ਸਮੂਥਲੀ ਸ਼ੋਅ ਕਰਨਾ
+            setTimeout(() => {
+                formContainer.style.display = 'none';
+                wheelContainer.style.display = 'flex';
+                drawWheel();
+            }, 1300);
+        });
+
+        function drawWheel() {
+            for (let i = 0; i < numSlices; i++) {
+                const angle = i * sliceAngle;
+                ctx.beginPath();
+                ctx.fillStyle = colors[i];
+                ctx.moveTo(200, 200);
+                ctx.arc(200, 200, 200, angle, angle + sliceAngle);
+                ctx.fill();
+                ctx.strokeStyle = "#FFD700";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(200, 200);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = colors[i] === "#006B3C" ? "#ffffff" : "#006B3C";
+                ctx.font = "bold 16px Arial";
+                ctx.fillText("TULI", 185, 5); 
+                ctx.restore();
+            }
+        }
+
+        let currentRotation = 0;
+
+        spinBtn.addEventListener('click', () => {
+            spinBtn.disabled = true;
+            canvas.style.animation = "partyLights 0.5s infinite linear";
+
+            const winningIndex = Math.floor(Math.random() * numSlices); 
+            const rotations = 12 * 360; 
+            const finalAngle = (numSlices - winningIndex) * (360 / numSlices);
+            
+            currentRotation += rotations + finalAngle - (currentRotation % 360);
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            let tickCounter = 0;
+            let tickInterval = setInterval(() => {
+                playTickSound();
+                tickCounter++;
+                if (tickCounter >= 40) clearInterval(tickInterval); 
+            }, 120);
+
+            setTimeout(() => {
+                clearInterval(tickInterval);
+                canvas.style.animation = "none"; 
+                
+                const prize = prizes[winningIndex];
+
+                if (prize === "TRY NEXT TIME") {
+                    playRealSadMusic(); // ਅਸਲੀ ਉਦਾਸ ਟਿਊਨ
+                    revealMsg.innerHTML = `
+                        <h2>💔 ਓਹ ਹੋ!</h2>
+                        <h3>TRY NEXT TIME</h3>
+                        <p style="font-size:1rem; color:#666; margin-top:10px;">ਕੋਈ ਗੱਲ ਨਹੀਂ ਭਾਜੀ, ਅਗਲੀ ਵਾਰ ਕਿਸਮਤ ਜ਼ਰੂਰ ਸਾਥ ਦੇਵੇਗੀ!</p>
+                        <button class="btn-style" style="width:auto; margin-top:15px; padding: 10px 30px; font-size:1rem;" onclick="location.reload();">TRY AGAIN</button>
+                    `;
+                } else {
+                    playRealWinMusic(); // 🌟 ਅਸਲੀ IPL ਸਟਾਈਲ ਵਿਨਿੰਗ ਮਿਊਜ਼ਿਕ ਚਾਈਮਸ
+                    confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } }); 
+                    revealMsg.innerHTML = `
+                        <h2 style="color:#333; font-weight:900;">🎉 HURRAY! CONGRATULATIONS!</h2>
+                        <p style="margin:5px 0; color:#666;">ਤੁਸੀਂ ਜਿੱਤਿਆ:</p>
+                        <h3 style="color:#006B3C; font-weight:900; font-size:1.8rem;">${prize}</h3>
+                    `;
+                    
+                    const dealerNo = "917814448358";
+                    const waText = encodeURIComponent(`ਸਤਿ ਸ਼੍ਰੀ ਅਕਾਲ ਜੀ! ਮੈਂ, ${customerData.name} (${customerData.phone}), ਨੇ Tuli Diapers 'ਤੇ "${prize}" ਜਿੱਤਿਆ ਹੈ।`);
+                    revealMsg.innerHTML += `<br><a href="https://wa.me/${dealerNo}?text=${waText}" class="wa-btn" target="_blank">WhatsApp 'ਤੇ ਕਲੇਮ ਕਰੋ</a>`;
+                }
+                
+                revealContainer.classList.add('show');
+                sendDataToBackend(prize);
+                
+            }, 5000);
+        });
+
+        function sendDataToBackend(prize) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyf4IGZj7FTrO4ukhpzk_fOU2sER8pXyB1PgNQyU-o8Wz0lBqoJJs6I7KJZd_lzOJMxAQ/exec'; 
+            const urlWithParams = `${scriptURL}?name=${encodeURIComponent(customerData.name)}&phone=${encodeURIComponent(customerData.phone)}&email=${encodeURIComponent(customerData.email)}&prize=${encodeURIComponent(prize)}`;
+
+            fetch(urlWithParams, { 
+                method: 'POST',
+                mode: 'no-cors'
+            })
+            .then(() => console.log('Data Sent'))
+            .catch(err => console.error('Error:', err));
+        }
+    </script>
+</body>
+</html>
